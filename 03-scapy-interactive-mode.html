@@ -67,8 +67,52 @@ tshark              : Sniff packets and print them calling pkt.show(), a bit lik
 wireshark           : Run wireshark on a list of packets
 wrpcap              : Write a list of packets to a pcap file
 >>></code></pre>
-        <em class="caption">Note: I truncated this list to show the commands we will be discussing in this guide.</em>
+        <p class="caption">Note: I truncated this list to show the commands we will be discussing in this guide.</p>
         
+        <p>Wow, what a great list of commands! I'll at least introduce most of these commands, and there are a few that we'll use extensively. For the next few topics, we'll specifically be covering: <code>ls()</code>, <code>send()</code>, <code>sniff()</code>, and <code>sr*()</code>.</p>
+
+        <p>In fact, let's go ahead and use one of those now to show off some of the amazing built in capabilities of Scapy! I'm going to sniff a single packet real quick and then we'll play around with that.</p>
+        <pre><code>>>> pkt=sniff(count=1)
+>>> pkt=sniff(count=1)
+>>> pkt.summary()
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+>>></code></pre>
+        <p>So, what I've done here is defined a <code>pkt</code> variable that is equal to whatever <code>sniff()</code> returns. In this case, that will be a single packet since I've passed in the <code>count</code> argument with a value of 1. Our <code>pkt</code> now holds a single packet. If we increased <code>count</code> to a value of 2 or greater, then <code>sniff()</code> will return an array of packets. I'll show you how to access each packet individually later.</p>
+        <p>But wait, how does Scapy know that this packet contains Ethernet, IP and ICMP layers!? I'm glad you asked, Scapy has a wide range of built in protocol support. The list is much to long for me to print out here, so I'll let you run this next command on your own. In Scapy Interactive mode, run the <code>ls()</code> command and just look at ALL the supported protocols.</p>
+        <pre><code>>>> ls()
+ARP        : ARP
+ASN1_Packet : None
+BOOTP      : BOOTP
+...</code></pre>
+        
+        <p>As you can see, Scapy has a huge range of supported protocols. We'll only work with a handful of those in the upcoming topics but feel free to dig into them more for your own network tools. To see the fields and default values for any protocol, just run the <code>ls()</code> function on the protocol like this:</p>
+        <pre><code>>>> ls(Ether)
+dst        : DestMACField         = (None)
+src        : SourceMACField       = (None)
+type       : XShortEnumField      = (0)</code></pre>
+        <br>
+        <pre><code>>>> ls(IP)
+version    : BitField             = (4)
+ihl        : BitField             = (None)
+tos        : XByteField           = (0)
+len        : ShortField           = (None)
+id         : ShortField           = (1)
+flags      : FlagsField           = (0)
+frag       : BitField             = (0)
+ttl        : ByteField            = (64)
+proto      : ByteEnumField        = (0)
+chksum     : XShortField          = (None)
+src        : Emph                 = (None)
+dst        : Emph                 = ('127.0.0.1')
+options    : PacketListField      = ([])</code></pre>
+        <br>
+        <pre><code>>>> ls(UDP)
+sport      : ShortEnumField       = (53)
+dport      : ShortEnumField       = (53)
+len        : ShortField           = (None)
+chksum     : XShortField          = (None)</code></pre>
+        <br>
+        <p>Now that we have a better idea of the Scapy commands and protocol support, let's dig into some packets.</p>
         
         <nav>
           <p class="previous"><a href="02-installing-scapy.html"><i class="icon-arrow-left"></i> Previous</a></p>
