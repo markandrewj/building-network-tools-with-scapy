@@ -42,7 +42,7 @@
         <ul>
           <li><strong>count:</strong> Number of packets to capture. 0 means infinity.</li>
           <li><strong>iface:</strong> Sniff for packets only on the provided interface.</li>
-          <li><strong>prn:</strong> Function to apply to each packet. If something is returned, it is dis-played. For instance you can use prn = lambda x: x.summary().</li>
+          <li><strong>prn:</strong> Function to apply to each packet. If something is returned, it is displayed. For instance you can use prn = lambda x: x.summary().</li>
           <li><strong>store:</strong> Whether to store sniffed packets or discard them. When you only want to monitor your network forever, set store to 0.</li>
           <li><strong>timeout:</strong> Stop sniffing after a given time (default: None).</li>
         </ul>
@@ -110,7 +110,7 @@ pdst       : IPField              = ('0.0.0.0')</code></pre>
         <h4>Sending a packet</h4>
         <p>Yup, you guessed it, its finally time to send this ARP packet out on the wire! Since ARP is a L2 protocol we're going to use the <code>sendp()</code> function as the <code>send()</code> function only works with L3 Packets (IP or IPv6 headers):</p>
         <pre><code>>>> arppkt
-<Ether  dst=ff:ff:ff:ff:ff:ff src=00:11:22:aa:bb:cc type=0x806 |<ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>>
+&lt;Ether  dst=ff:ff:ff:ff:ff:ff src=00:11:22:aa:bb:cc type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>>
 >>> sendp(arppkt)
 .
 Sent 1 packets.</code></pre>
@@ -123,7 +123,7 @@ Sent 1 packets.</code></pre>
 Sent 1 packets.</code></pre>
         <p>In fact, we can do some other cool things with these send functions. If we had an array of packets (such as one created with Python loops and some random or incrementing values for IP address/TCP port), the send function would send each packet in that array: </p>
         <pre><code>>>> pkts
-<Sniffed: TCP:0 UDP:5 ICMP:4 Other:1>
+&lt;Sniffed: TCP:0 UDP:5 ICMP:4 Other:1>
 >>> send(pkts)
 ..........
 Sent 10 packets.</code></pre>
