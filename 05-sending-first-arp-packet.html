@@ -35,10 +35,108 @@
         <h3 id="01">
           05 - Sending our First Packet; ARP Response
         </h3>
-        <p>Topic text here</p>
+        <p>With a good understanding of how to view our packets we can now move onto some packet generation. Let's talk a bit about sniffing first and how existing packets are our best tool for creating new ones.</p>
 
+        <h4>Sniff() function arguments</h4>
+        <p>We've used the <code>sniff()</code> function a couple times already to capture some packets for viewing. I'm going to explain a little bit more about the <code>sniff()</code> function and its arguments. The arguments we will be talking about are: </p>
+        <ul>
+          <li><strong>count:</strong> Number of packets to capture. 0 means infinity.</li>
+          <li><strong>iface:</strong> Sniff for packets only on the provided interface.</li>
+          <li><strong>prn:</strong> Function to apply to each packet. If something is returned, it is dis-played. For instance you can use prn = lambda x: x.summary().</li>
+          <li><strong>store:</strong> Whether to store sniffed packets or discard them. When you only want to monitor your network forever, set store to 0.</li>
+          <li><strong>timeout:</strong> Stop sniffing after a given time (default: None).</li>
+        </ul>
         
+        <p>These should all be self-explanatory except for the <code>filter</code> and <code>prn</code> arguments. The <code>filter</code> argument takes <a href="http://biot.com/capstats/bpf.html" target="_blank">BPF syntax filters</a>, just like Wireshark or tcpdump capture filters. The <code>prn</code> argument is a very cool capability of the <code>sniff()</code> function and you can read more about it here: <a href="http://thepacketgeek.com/scapy-sniffing-with-custom-actions-part-1/" target="_blank">Scapy and custom actions.</a></p>
+
+        <p>Since we want to generate our first ARP packet we should go ahead and sniff one to see what it looks like. Here's a sniff using the <code>count</code> and <code>filter</code> arguments:
+        <pre><code>>>> pkts = sniff(count=5,filter="arp")
+>>> pkts.summary()
+Ether / ARP who has 172.16.20.255 says 172.16.20.40 / Padding
+Ether / ARP who has 172.16.20.244 says 172.16.20.40 / Padding
+Ether / ARP who has 172.16.20.252 says 172.16.20.40 / Padding
+Ether / ARP who has 172.16.20.253 says 172.16.20.40 / Padding
+Ether / ARP who has 172.16.20.80 says 172.16.20.74 / Padding
+>>> pkts[0].show()
+###[ Ethernet ]###
+  dst= ff:ff:ff:ff:ff:ff
+  src= 00:11:22:94:52:e8
+  type= 0x806
+###[ ARP ]###
+     hwtype= 0x1
+     ptype= 0x800
+     hwlen= 6
+     plen= 4
+     op= who-has
+     hwsrc= 00:11:22:94:52:e8
+     psrc= 172.16.20.40
+     hwdst= 00:00:00:00:00:00
+     pdst= 172.16.20.255
+###[ Padding ]###</code></pre>
+        <h4>Building a Packet</h4>
+        <p>It looks like ARP packets only have 2 layers plus padding that we have to worry about. We can use the <code>ls()</code> function on the Ether and ARP layers to see what options are available to us:</p>
+        <pre><code>>>> ls(Ether)
+dst        : DestMACField         = (None)
+src        : SourceMACField       = (None)
+type       : XShortEnumField      = (0)
+>>> ls(ARP)
+hwtype     : XShortField          = (1)
+ptype      : XShortEnumField      = (2048)
+hwlen      : ByteField            = (6)
+plen       : ByteField            = (4)
+op         : ShortEnumField       = (1)
+hwsrc      : ARPSourceMACField    = (None)
+psrc       : SourceIPField        = (None)
+hwdst      : MACField             = ('00:00:00:00:00:00')
+pdst       : IPField              = ('0.0.0.0')</code></pre>
+        <p>Let's create our ARP packet and start assigning some values:</p>
+        <pre><code>>>> arppkt
+&lt;Ether  type=0x806 |&lt;ARP  |>>
+>>> arppkt[ARP].hwsrc = "00:11:22:aa:bb:cc"
+>>> arppkt[ARP].pdst = "172.16.20.1"
+>>> arppkt[Ether].dst = "ff:ff:ff:ff:ff:ff"
+>>> arppkt
+&lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
+        <p>We start by defining the layers we want with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define all the options in one statement by passing in the fields as arguments to the related layer:</p>
+        <pre><code>>>> arppkt
+&lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
+        <p>Note that the special glue holding these packets together is the <code>/</code> operator. If you happen to forget a layer when you're first defining the packet, you can add on a layer very easily using the existing packet and the <code>/</code> operator like this:</p>
+        <pre><code>>>> tcppkt
+&lt;Ether  type=0x800 |&lt;IP  |>>
+>>> tcppkt = tcppkt/TCP()
+>>> tcppkt
+&lt;Ether  type=0x800 |&lt;IP  frag=0 proto=tcp |&lt;TCP  |>>></code></pre>
         
+        <h4>Sending a packet</h4>
+        <p>Yup, you guessed it, its finally time to send this ARP packet out on the wire! Since ARP is a L2 protocol we're going to use the <code>sendp()</code> function as the <code>send()</code> function only works with L3 Packets (IP or IPv6 headers):</p>
+        <pre><code>>>> arppkt
+<Ether  dst=ff:ff:ff:ff:ff:ff src=00:11:22:aa:bb:cc type=0x806 |<ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>>
+>>> sendp(arppkt)
+.
+Sent 1 packets.</code></pre>
+        
+        <img src="images/05-sent-arp-packet.png"/>
+        <p class="caption">Screenshot of capture packet in Wireshark</p>
+        <p>What, what! Check that out! Our packet out from the scapy console and in the wire!  Pretty cool, right? Well, here's a fun fact. We don't need to create and build the packet before sending it, we can define the packet right there in the <code>send()</code> or <code>sendp()</code> function like this:</p>
+        <pre><code>>>> sendp(Ether(dst="ff:ff:ff:ff:ff:ff",src="00:11:22:aa:bb:cc")/ARP(hwsrc="00:11:22:aa:bb:cc",pdst="172.16.20.1")
+.
+Sent 1 packets.</code></pre>
+        <p>In fact, we can do some other cool things with these send functions. If we had an array of packets (such as one created with Python loops and some random or incrementing values for IP address/TCP port), the send function would send each packet in that array: </p>
+        <pre><code>>>> pkts
+<Sniffed: TCP:0 UDP:5 ICMP:4 Other:1>
+>>> send(pkts)
+..........
+Sent 10 packets.</code></pre>
+
+        <p>The send commands have some arguments to control the packet sending, here's the main ones you might consider using:</p>
+        <p><strong>send(pkts, inter=0, loop=0)<br>sendp(pkts, inter=0, loop=0)</strong></p>
+
+        <ul>
+          <li><strong>iface:</strong> The interface to send the packets out from.</li>
+          <li><strong>inter:</strong> Time in seconds to wait between 2 packets.</li>
+          <li><strong>loop:</strong> Send the packets endlessly if not 0.</li>
+          <li><strong>pkts:</strong> Can be a packet, an implicit packet or a list of them.</li>
+        </ul>
         <nav>
           <p class="previous"><a href="04-looking-at-packets.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="06-spoofing-arp-reply.html">Next <i class="icon-arrow-right"></i></a></p>
