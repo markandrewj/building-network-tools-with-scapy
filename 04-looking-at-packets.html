@@ -36,10 +36,10 @@
           04 - Looking at Packets
         </h3>
         <h4>Packet summary() and show() Methods</h4>
-        <p>Let's go back to our <code>pkt</code> and have some fun with it using Scapy's Interactive mode still. We already know that using the <code>summary()</code> method will give us a quick look at the packet's layers:</p>
+        <p>Let's go back to our <code>pkt</code> and have some fun with it using Scapy's Interactive mode. We already know that using the <code>summary()</code> method will give us a quick look at the packet's layers:</p>
         <pre><code>>>> pkt[0].summary()
 'Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw'</code></pre>
-        But what if we want to see more of the packet contents?  That's what the <code>show()</code> method is for:
+        <p>But what if we want to see more of the packet contents?  That's what the <code>show()</code> method is for:</p>
         <pre><code>>>> pkt[0].show()
 ###[ Ethernet ]###
   dst= 00:24:97:2e:d6:c0
@@ -69,8 +69,9 @@
         <p>Very cool, that's some good info. If you're familiar with Python you have probably noticed the array index, <code>[0]</code>, after the <code>pkt</code> variable name. Remember that our sniff only returned a single packet, but if we increase the <code>count</code> argument value, we will get back an array with multiple packets:</p>
         <pre><code>>>> pkts = sniff(count=10)
 >>> pkts
-<Sniffed: TCP:0 UDP:0 ICMP:10 Other:0>
->>> pkts.summary()
+&lt;Sniffed: TCP:0 UDP:0 ICMP:10 Other:0&gt;</code></pre>
+        <p class="caption">Getting the value of the array returns a quick glance at what type of packets were sniffed.</p>
+<pre><code>>>> pkts.summary()
 Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
 Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
@@ -81,8 +82,12 @@ Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
 Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
-        And we can show the summary or packet contents of any single packet by using the array index with that packet value. So, let's look at the contents of the 4th packet (Remember, array indexes start counting 0):
-        <pre><code>>>> pkts[3].show()
+        <p>And we can show the summary or packet contents of any single packet by using the array index with that packet value. So, let's look at the contents of the 4th packet (Remember, array indexes start counting at 0):</p>
+        <pre><code>>>> pkts[3]
+&lt;Ether  dst=00:24:97:2e:d6:c0 src=00:24:97:2e:d6:c0 type=0x800 |&lt;IP  version=4L ihl=5L tos=0x20 len=84 id=47340 flags= frag=0L ttl=57 proto=icmp chksum=0x3826 src=4.2.2.1 dst=172.16.20.10 options=[] |&lt;ICMP  type=echo-reply code=0 chksum=0xcfbf id=0x3060 seq=0x1 |&lt;Raw |>>>></code></pre>
+        <p class="caption">Getting the value of a single packet returns a quick glance of the contents of that packet. </p>
+        <p>The <code>show()</code> method will give us a cleaner print out:</p>
+<pre><code>>>> pkts[3].show()
 ###[ Ethernet ]###
   dst= 00:00:16:aa:bb:cc
   src= 00:24:97:2e:d6:c0
@@ -108,8 +113,51 @@ Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
         id= 0x3060
         seq= 0x1
 ###[ Raw ]###</code></pre>
-
         
+        <h4>Digging into Packets by Layer</h4>
+        <p>Scapy builds and dissects packets by the layers contained in each packet, and then by the fields in each layer. Each layer is nested inside the parent layer as can be seen with the nesting of the &lt; and &gt; brackets: </p>
+        <pre><code>>>> pkts[4]
+&lt;Ether  dst=00:24:97:2e:d6:c0 src=00:00:16:aa:bb:cc type=0x800 |&lt;IP  version=4L ihl=5L tos=0x0 len=84 id=17811 flags= frag=0L ttl=64 proto=icmp chksum=0x0 src=192.168.201.203 dst=4.2.2.1 options=[] |&lt;ICMP  type=echo-request code=0 chksum=0xc378 id=0x3060 seq=0x2 |&lt;Raw |&gt;&gt;&gt;&gt;</code></pre>
+        <p>You can also dig into a specific layer using an array index. If we wanted to get to the <code>ICMP</code> layer of <code>pkts[3]</code>, we could do that using the layer name or index number: </p>
+        <pre><code>>>> pkts[3][ICMP].summary()
+'ICMP 4.2.2.1 > 192.168.201.203 echo-reply 0 / Raw'
+>>> pkts[3][2].summary()
+'ICMP 4.2.2.1 > 192.168.201.203 echo-reply 0 / Raw'</code></pre>
+        <p>Since the first index chooses the packet out of the <code>pkts</code> array, the second index chooses the layer for that specific packet. Looking at the summary of this packet from an earlier example, we know that the <code>ICMP</code> layer is the 3rd layer.
+
+        <h4>Digging into Layers by Field</h4>
+        <p>Within each layer, Scapy parses out the value of each field if it has support for the layer's protocol. Depending on the type of field, Scapy may replace the value with a more friendly text value for the summary views, but not in the values returned for an individual field. Here are some examples:</p>
+        <pre><code>>>> pkts[3]
+&lt;Ether  dst=00:00:16:aa:bb:cc src=00:24:97:2e:d6:c0 type=0x800 |\
+&lt;IP  version=4L ihl=5L tos=0x20 len=84 id=47340 flags= frag=0L ttl=57 proto=icmp chksum=0x3826 src=4.2.2.1 dst=192.168.201.203 options=[] |\
+&lt;ICMP  type=echo-reply code=0 chksum=0xcfbf id=0x3060 seq=0x1 |&lt;Raw |>>>>
+>>> pkts[3][Ether].src
+'00:24:97:2e:d6:c0'
+>>> pkts[3][IP].ttl
+57
+>>> pkts[3][IP].proto
+1
+>>> pkts[3][ICMP].type
+0</code></pre>
+
+        <h4>Using Python control statements with Scapy</h4>
+        <p>The awesome thing about Scapy being a module of Python is that we can use the power of Python to do stuff with our packets. Here's a tip of the iceberg example using a Python <code>for</code> statement along with some new Scapy packet methods:
+        <pre><code>>>> for packet in pkts:
+...     if (packet.haslayer(ICMP)):
+...         print "ICMP code: " + str(packet.getlayer(ICMP).code)
+...
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+ICMP code: 0
+</code></pre>
+        <p>As you can guess, the <code>haslayer()</code> and <code>getlayer()</code> methods will test for the existence of a layer and return the layer (and any nested layers) respectively. This is just a very basic use of Python statements with Scapy and we'll see a lot more when it comes to packet generation and custom actions.</p>
         
         <nav>
           <p class="previous"><a href="03-scapy-interactive-mode.html"><i class="icon-arrow-left"></i> Previous</a></p>
