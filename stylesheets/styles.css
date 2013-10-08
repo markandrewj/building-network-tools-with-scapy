@@ -137,6 +137,14 @@ hr {
   height:1px;
   margin:0 0 24px;
 }
+nav .next {
+  float: right;
+  margin-top: 30px;
+}
+nav .previous {
+  float: left;
+  margin-top: 30px;
+}
 
 /* Images */
 
@@ -156,16 +164,21 @@ code, pre {
 	font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color:#000;
   font-size:14px;
+  font-weight: bold;
 }
 
 pre {
 	padding: 4px 12px;
-  background: #FDFEFB;
+  background: #222;
   border-radius:4px;
   border:1px solid #D7D8C8;
   overflow: auto;
   overflow-y: hidden;
-	margin-bottom: 32px;
+	/*margin-bottom: 32px;*/
+}
+pre code {
+  color: #eee;
+  font-weight: bold;
 }
 
 
