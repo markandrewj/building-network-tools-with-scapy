@@ -35,7 +35,79 @@
         <h3 id="01">
           04 - Looking at Packets
         </h3>
-        <p>Topic text here</p>
+        <h4>Packet summary() and show() Methods</h4>
+        <p>Let's go back to our <code>pkt</code> and have some fun with it using Scapy's Interactive mode still. We already know that using the <code>summary()</code> method will give us a quick look at the packet's layers:</p>
+        <pre><code>>>> pkt[0].summary()
+'Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw'</code></pre>
+        But what if we want to see more of the packet contents?  That's what the <code>show()</code> method is for:
+        <pre><code>>>> pkt[0].show()
+###[ Ethernet ]###
+  dst= 00:24:97:2e:d6:c0
+  src= 00:00:16:aa:bb:cc
+  type= 0x800
+###[ IP ]###
+     version= 4L
+     ihl= 5L
+     tos= 0x0
+     len= 84
+     id= 57299
+     flags= 
+     frag= 0L
+     ttl= 64
+     proto= icmp
+     chksum= 0x0
+     src= 172.16.20.10
+     dst= 4.2.2.1
+     \options\
+###[ ICMP ]###
+        type= echo-request
+        code= 0
+        chksum= 0xd8af
+        id= 0x9057
+        seq= 0x0
+###[ Raw ]###</code></pre>
+        <p>Very cool, that's some good info. If you're familiar with Python you have probably noticed the array index, <code>[0]</code>, after the <code>pkt</code> variable name. Remember that our sniff only returned a single packet, but if we increase the <code>count</code> argument value, we will get back an array with multiple packets:</p>
+        <pre><code>>>> pkts = sniff(count=10)
+>>> pkts
+<Sniffed: TCP:0 UDP:0 ICMP:10 Other:0>
+>>> pkts.summary()
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
+Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
+        And we can show the summary or packet contents of any single packet by using the array index with that packet value. So, let's look at the contents of the 4th packet (Remember, array indexes start counting 0):
+        <pre><code>>>> pkts[3].show()
+###[ Ethernet ]###
+  dst= 00:00:16:aa:bb:cc
+  src= 00:24:97:2e:d6:c0
+  type= 0x800
+###[ IP ]###
+     version= 4L
+     ihl= 5L
+     tos= 0x20
+     len= 84
+     id= 47340
+     flags= 
+     frag= 0L
+     ttl= 57
+     proto= icmp
+     chksum= 0x3826
+     src= 4.2.2.1
+     dst= 172.16.20.10
+     \options\
+###[ ICMP ]###
+        type= echo-reply
+        code= 0
+        chksum= 0xcfbf
+        id= 0x3060
+        seq= 0x1
+###[ Raw ]###</code></pre>
 
         
         

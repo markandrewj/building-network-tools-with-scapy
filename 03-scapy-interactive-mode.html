@@ -74,10 +74,10 @@ wrpcap              : Write a list of packets to a pcap file
         <p>In fact, let's go ahead and use one of those now to show off some of the amazing built in capabilities of Scapy! I'm going to sniff a single packet real quick and then we'll play around with that.</p>
         <pre><code>>>> pkt=sniff(count=1)
 >>> pkt=sniff(count=1)
->>> pkt.summary()
-Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
+>>> pkt[0].summary()
+'Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw'
 >>></code></pre>
-        <p>So, what I've done here is defined a <code>pkt</code> variable that is equal to whatever <code>sniff()</code> returns. In this case, that will be a single packet since I've passed in the <code>count</code> argument with a value of 1. Our <code>pkt</code> now holds a single packet. If we increased <code>count</code> to a value of 2 or greater, then <code>sniff()</code> will return an array of packets. I'll show you how to access each packet individually later.</p>
+        <p>So, what I've done here is defined a <code>pkt</code> variable that is equal to whatever <code>sniff()</code> returns. In this case, that will be a single packet since I've passed in the <code>count</code> argument with a value of 1. Our <code>pkt</code> now holds an array containing single packet. If we increased <code>count</code> to a value of 2 or greater, then <code>sniff()</code> will return an array of all those packets. I'll show you how to access each packet individually a little bit later.</p>
         <p>But wait, how does Scapy know that this packet contains Ethernet, IP and ICMP layers!? I'm glad you asked, Scapy has a wide range of built in protocol support. The list is much to long for me to print out here, so I'll let you run this next command on your own. In Scapy Interactive mode, run the <code>ls()</code> command and just look at ALL the supported protocols.</p>
         <pre><code>>>> ls()
 ARP        : ARP
@@ -90,7 +90,7 @@ BOOTP      : BOOTP
 dst        : DestMACField         = (None)
 src        : SourceMACField       = (None)
 type       : XShortEnumField      = (0)</code></pre>
-        <br>
+        
         <pre><code>>>> ls(IP)
 version    : BitField             = (4)
 ihl        : BitField             = (None)
@@ -105,13 +105,13 @@ chksum     : XShortField          = (None)
 src        : Emph                 = (None)
 dst        : Emph                 = ('127.0.0.1')
 options    : PacketListField      = ([])</code></pre>
-        <br>
+        
         <pre><code>>>> ls(UDP)
 sport      : ShortEnumField       = (53)
 dport      : ShortEnumField       = (53)
 len        : ShortField           = (None)
 chksum     : XShortField          = (None)</code></pre>
-        <br>
+        
         <p>Now that we have a better idea of the Scapy commands and protocol support, let's dig into some packets.</p>
         
         <nav>

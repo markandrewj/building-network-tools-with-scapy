@@ -148,6 +148,7 @@ nav .previous {
 .caption {
   color: #666;
   margin-bottom: 32px;
+  margin-top: -30px;
   font-style: italic;
 }
 /* Images */
@@ -178,7 +179,7 @@ pre {
   border:1px solid #D7D8C8;
   overflow: auto;
   overflow-y: hidden;
-	/*margin-bottom: 32px;*/
+	margin-bottom: 32px;
 }
 pre code {
   color: #eee;
