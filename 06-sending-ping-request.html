@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Sending an ICMP Echo Request</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link href="stylesheets/font-awesome.min.css" rel="stylesheet">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header"><a href="index.html">Scapy for Network Tools</a></h1>
+        <p class="header">Using the power of Python + Scapy to build network tools</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/thepacketgeek/building-network-tools-with-scapy/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/thepacketgeek/building-network-tools-with-scapy/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/thepacketgeek/building-network-tools-with-scapy">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/thepacketgeek">thepacketgeek</a></p>
+
+
+      </header>
+      <section>
+        <h3 id="01">
+          06 - Sending an ICMP Echo Request
+        </h3>
+        <p>We've sniffed some packets, dig down into packet layers and fields, and even sent some packets. Great job! It's time to step up our game with Scapy and start really using some of the power Scapy contains. Please Note: this next example is for education and example only. Please be responsible on your network, especially at work!</p>
+        <h4>Scapy Send/Receive Function</h4>
+        <p>Let's get familiar with the <code>sr()</code> and <code>srp()</code> functions. Just like the <code>send()</code>, function, the 'p' at the end of the function name means that we're sending at L2 instead of L3. I'll reference both functions as <code>sr()</code>, but the examples will use the correct function.</p>
+        <p>The <code>sr()</code> function is used to send a packet or group of packets when you expect a response back. We'll be sending an ICMP Echo Request (ping) since we can expect some sort of a response back from that. First let's use the <code>sniff()</code> function to figure out what an ICMP Echo Request looks like in Scapy:</p>
+        <pre><code>>>> p = sniff(count=10,filter="icmp and ip host 4.2.2.1")
+>>> p
+&lt;Sniffed: TCP:0 UDP:0 ICMP:10 Other:0>
+>>> p[0]
+&lt;Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |&lt;IP  version=4L ihl=5L tos=0x0 len=84 id=14488 flags= frag=0L ttl=64 proto=icmp chksum=0x7bd6 src=172.16.20.40 dst=4.2.2.1 options=[] |&lt;ICMP  type=echo-request code=0 chksum=0xaba6 id=0x55d3 seq=0x0 |&lt;Raw |>>>></code></pre>
+        <p>In the previous ARP example we changed the dst and src MAC address, but since we're expecting a response back from another network device we'll have to leave it up to Scapy to fill those in when it sends the packets. We can start building the <code>Ether</code> and <code>IP</code> layers. To see the available fields for each layer, and what the default values will be if we don't specify, use the <code>ls('layer')</code> command:</p>
+        <pre><code>>>> ls(IP)
+version    : BitField             = (4)
+ihl        : BitField             = (None)
+tos        : XByteField           = (0)
+len        : ShortField           = (None)
+id         : ShortField           = (1)
+flags      : FlagsField           = (0)
+frag       : BitField             = (0)
+ttl        : ByteField            = (64)
+proto      : ByteEnumField        = (0)
+chksum     : XShortField          = (None)
+src        : Emph                 = (None)
+dst        : Emph                 = ('127.0.0.1')
+options    : PacketListField      = ([])
+>>> ls(ICMP)
+type       : ByteEnumField        = (8)
+code       : MultiEnumField       = (0)
+chksum     : XShortField          = (None)
+id         : ConditionalField     = (0)
+seq        : ConditionalField     = (0)
+ts_ori     : ConditionalField     = (13940582)
+ts_rx      : ConditionalField     = (13940582)
+ts_tx      : ConditionalField     = (13940582)
+gw         : ConditionalField     = ('0.0.0.0')
+ptr        : ConditionalField     = (0)
+reserved   : ConditionalField     = (0)
+addr_mask  : ConditionalField     = ('0.0.0.0')
+unused     : ConditionalField     = (0)</code></pre>
+        <p>Most of those default values are fine, and src addresses will be filled out automatically by Scapy when it sends the packets. We can spoof those if desired, but again, since we're expecting a response we need to leave those alone. Let's start building our ICMP packet:</p>
+        <pre><code>>>> pingr
+<Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |<IP  frag=0 proto=icmp src=172.16.20.40 dst=4.2.2.1 |<ICMP  type=echo-request code=0 |<Raw  load='XXXXXXXXXX' |>>>>
+>>></code></pre>
+
+
+        
+        
+        <nav>
+          <p class="previous"><a href="05-sending-first-arp-packet.html"><i class="icon-arrow-left"></i> Previous</a></p>
+          <p class="next"><a href="07-monitoring-arp.html">Next <i class="icon-arrow-right"></i></a></p>
+        </nav>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/thepacketgeek">thepacketgeek</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-44238008-3");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
