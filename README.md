@@ -1,1 +1,1 @@
-http://thepacketgeek.github.io/building-network-tools-with-scapy/
+http://scapy.thepacketgeek.com
