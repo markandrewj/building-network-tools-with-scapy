@@ -37,7 +37,7 @@
         </h3>
         <p>We've sniffed some packets, dig down into packet layers and fields, and even sent some packets. Great job! It's time to step up our game with Scapy and start really using some of the power Scapy contains. Please Note: this next example is for education and example only. Please be responsible on your network, especially at work!</p>
         <h4>Scapy Send/Receive Function</h4>
-        <p>Let's get familiar with the <code>sr()</code> and <code>srp()</code> functions. Just like the <code>send()</code>, function, the 'p' at the end of the function name means that we're sending at L2 instead of L3. I'll reference both functions as <code>sr()</code>, but the examples will use the correct function.</p>
+        <p>Let's get familiar with the <code>sr()</code>, <code>sr1()</code>, <code>srp()</code>, and <code>srp1()</code> functions. Just like the <code>send()</code>, function, the 'p' at the end of the function name means that we're sending at L2 instead of L3. The functions with a '1' in them mean that Scapy will send the specified packet and end after receiving 1 answer/response instead of continuing to listen for answers/responses. I'll reference both functions as <code>sr()</code>, but the examples will use the correct function.</p>
         
         <h4>Sending an ICMP Echo Request (ping)</h4>
         <p>The <code>sr()</code> function is used to send a packet or group of packets when you expect a response back. We'll be sending an ICMP Echo Request (ping) since we can expect some sort of a response back from that. First let's use the <code>sniff()</code> function to figure out what an ICMP Echo Request looks like in Scapy:</p>
@@ -46,7 +46,7 @@
 &lt;Sniffed: TCP:0 UDP:0 ICMP:10 Other:0>
 >>> p[0]
 &lt;Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |&lt;IP  version=4L ihl=5L tos=0x0 len=84 id=14488 flags= frag=0L ttl=64 proto=icmp chksum=0x7bd6 src=172.16.20.40 dst=4.2.2.1 options=[] |&lt;ICMP  type=echo-request code=0 chksum=0xaba6 id=0x55d3 seq=0x0 |&lt;Raw |>>>></code></pre>
-        <p>In the previous ARP example we changed the dst and src MAC address, but since we're expecting a response back from another network device we'll have to leave it up to Scapy to fill those in when it sends the packets. We can start building the <code>Ether</code> and <code>IP</code> layers. To see the available fields for each layer, and what the default values will be if we don't specify, use the <code>ls('layer')</code> command:</p>
+        <p>In the previous ARP example we changed the dst and src MAC address, but since we're expecting a response back from another network device we'll have to leave it up to Scapy to fill those in when it sends the packets. Since we're building a L3 packet, we can actually leave off the Ether layer since Scapy will handle the generation of that. So let's start building the <code>IP</code> and <code>ICMP</code> layers. To see the available fields for each layer, and what the default values will be if we don't specify, use the <code>ls('layer')</code> command:</p>
         <pre><code>>>> ls(IP)
 version    : BitField             = (4)
 ihl        : BitField             = (None)
@@ -75,13 +75,47 @@ ptr        : ConditionalField     = (0)
 reserved   : ConditionalField     = (0)
 addr_mask  : ConditionalField     = ('0.0.0.0')
 unused     : ConditionalField     = (0)</code></pre>
-        <p>Most of those default values are fine, and src addresses will be filled out automatically by Scapy when it sends the packets. We can spoof those if desired, but again, since we're expecting a response we need to leave those alone. Let's start building our ICMP packet:</p>
-        <pre><code>>>> pingr
-&lt;Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |&lt;IP  frag=0 proto=icmp src=172.16.20.40 dst=4.2.2.1 |&lt;ICMP  type=echo-request code=0 |&lt;Raw  load='XXXXXXXXXX' |>>>>
->>></code></pre>
+        <p>Most of those default values are fine, and src addresses will be filled out automatically by Scapy when it sends the packets. We can spoof those if desired, but again, since we're expecting a response we need to leave those alone. We'll be sending a L3 packet and we only expect one response, so we'll build and send our ICMP packet using the <code>sr1()</code> function:</p>
+        <pre><code>>>> pingr = IP(dst="192.168.200.254")/ICMP()
+>>> sr1(pingr)
+Begin emission:
+..Finished to send 1 packets.
+.*
+Received 84 packets, got 1 answers, remaining 0 packets
+&lt;IP  version=4L ihl=5L tos=0x0 len=28 id=1 flags= frag=0L ttl=255 proto=icmp chksum=0xa7c4 src=4.2.2.1 dst=172.16.20.40 options=[] |&lt;ICMP  type=echo-reply code=0 chksum=0xffff id=0x0 seq=0x0 |&lt;Padding |>>></code></pre>
+        <p class="caption">Scapy prints out the response packet</p>
 
+        <p>The 'Received 84 packets' is referring to the number of non-response packets Scapy sniffed while waiting for the response.  It's not anything to be alarmed about, but just note that on a busy host you might see a big number of packets there. We can also define the ICMP packet directly in the <code>sr1()</code> function like this:</p>
+        <pre><code>>>> sr1(IP(dst="192.168.200.254")/ICMP())
+Begin emission:
+..Finished to send 1 packets.
+.*
+Received 97 packets, got 1 answers, remaining 0 packets
+&lt;IP  version=4L ihl=5L tos=0x0 len=28 id=1 flags= frag=0L ttl=255 proto=icmp chksum=0xa7c4 src=4.2.2.1 dst=172.16.20.40 options=[] |&lt;ICMP  type=echo-reply code=0 chksum=0xffff id=0x0 seq=0x0 |&lt;Padding |>>></code></pre>
+        <p>We can save the response packet into a variable just like we do when creating a packet:</p>
+        <pre><code>>>> resp = sr1(pingr)
+Begin emission:
+..Finished to send 1 packets.
+.*
+Received 147 packets, got 1 answers, remaining 0 packets
+>>> resp[0].summary()
+'IP / ICMP 4.2.2.1 > 172.16.20.40 echo-reply 0 / Padding'</code></pre>
+        <p class="caption">If we're saving the response, Scapy won't print it out by default</p>
 
+        <p>Two other Scapy functions related to sending and receiving packets are the <code>srloop()</code> and <code>srploop()</code>. The <code>srloop()</code> will send the L3 packet and continue to resend the packet after each response is received.  The <code>srploop()</code> does the same thing except for... you guess it, L2 packets! This let's us simulate the <code>ping</code> command, and with the <code>count</code> argument, we can also define the number of times to loop:</p>
+        <pre><code>>>> resp = srloop(pingr,count=5)
+RECV 1: IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Padding
+RECV 1: IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Padding
+RECV 1: IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Padding
+RECV 1: IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Padding
+RECV 1: IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Padding
         
+Sent 5 packets, received 5 packets. 100.0% hits.
+>>> resp
+(&lt;Results: TCP:0 UDP:0 ICMP:5 Other:0>, &lt;PacketList: TCP:0 UDP:0 ICMP:0 Other:0>)</code></pre>
+        <p class="caption">Saving the responses puts our packets into an array</p>
+
+        <p>As you can see, our Scapy skills are building and you might already have some ideas about how you can use these functions in your own network tools. In the next article, we'll see how you can build an ARP monitor to keep an ear on the network for possible spoofed ARP replies.</p>
         
         <nav>
           <p class="previous"><a href="05-sending-first-arp-packet.html"><i class="icon-arrow-left"></i> Previous</a></p>
