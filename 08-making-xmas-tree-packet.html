@@ -35,10 +35,35 @@
         <h3 id="01">
           08 - Making a Christmas Tree Packet
         </h3>
-        <p>Coming Soon</p>
+        <p>We've doing a lot of packet sniffing, analysis, and even some basic packet crafting of our own. With the ICMP packets we created, we basically only set the destination we wanted to use and let Scapy take care of the rest. I want to show you how to take a bit more control over the packet creation process by creating a <a href="http://en.wikipedia.org/wiki/Christmas_tree_packet">TCP Christmas Tree packet</a>. I'll let you read the details, just know that the name of this packet comes from every TCP header flag bit turned on (set to 1), so it can be said the packet is "lit up like a Christmas Tree." Here's how we can build this with Scapy:</p>
+        <pre><code>from scapy.all import *
+from random import randint
 
+# Create the skeleton of our packet
+template = IP(dst="172.16.20.10")/TCP()
+
+# Start lighting up those bits!
+template[TCP].flags = "UFP"
+
+# Create an array with a large number of packets to send
+# Each packet will have a random TCP dest port for attack obfuscation
+xmas = []
+for pktNum in range(0,100):
+  xmas.extend(template)
+  xmas[pktNum][TCP].dport = randint(1,65535)
+
+# Send the array of packets
+send(xmas)
+
+============================Console Output:===========================
+....................................................................................................
+Sent 100 packets.
+</code></pre>
+        <p>Although we don't get much output from the <code>send()</code> function, and no option for the <code>prn</code> argument, we can sniff and see what happened:</p>
+        <img src="images/08-xmas-tree-packets.png">
+        <p class="caption">Wireshark sniff showing several xmas tree packets and the TCP header with our bits set</p>
         
-        
+        <p>Woohoo! Look how awesome we are! Make sure to look through that script so you can see what we're doing. We want to send random TCP ports in our packet, so we have to make an array of packets, each with a different TCP destination port. You could also randomize the source port or any other field using the technique I did in that script.</p>
         <nav>
           <p class="previous"><a href="07-monitoring-arp.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="09-scapy-and-CDP.html">Next <i class="icon-arrow-right"></i></a></p>
