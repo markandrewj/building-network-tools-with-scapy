@@ -58,6 +58,21 @@ Welcome to Scapy (2.2.0)
 
         <p>If you're on a different platform and have trouble installing Scapy, I recommend going to <a href="http://stackoverflow.com/search?q=installing+scapy" target="_blank">Stack Overflow</a> for help.</p>
         
+        <h4>Scapy and Network Interfaces</h4>
+        <p>If you have multiple network interfaces on your computer, you might have to double check which one Scapy will use by default. Run <code>scapy</code> from the terminal and run the <code>conf</code> command. See what interface Scapy will use by default by looking at the <code>iface</code> value:</p>
+        <pre><code>localhost:~ packetgeek$ scapy
+Welcome to Scapy (2.2.0)
+>>> conf
+...
+iface      = 'en0'
+...</code></pre>
+        <p class="caption">Scapy on my computer is defaulted to my en0 (Wifi) interface</p>
+        <p>If the default interface is not the one you will use, you can change the value like this:</p>
+        <pre><code>>>> conf.iface=en3</code></pre>
+        <p class="caption">Instead of en3, use the interface you want to be your default</p>
+        <p>If you are constantly switching back and forth between interfaces, you can specify the interface to use when you run scapy commands. Here are some Scapy functions and how you might use the <code>iface</code> argument. You'll learn more about these functions and other arguments soon.</p>
+        <pre><code>>>> sniff(count=10,iface=en3)
+>>> send(pkt,iface=en3)</code></pre>
         <nav>
           <p class="previous"><a href="01-scapy-overview.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="03-scapy-interactive-mode.html">Next <i class="icon-arrow-right"></i></a></p>
