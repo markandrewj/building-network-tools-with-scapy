@@ -63,7 +63,7 @@ send(xmas)
 Sent 100 packets.
 </code></pre>
         <p>Although we don't get much output from the <code>send()</code> function, and no option for the <code>prn</code> argument, we can sniff and see what happened:</p>
-        <img src="images/08-xmas-tree-packets.png">
+        <a href="images/08-xmas-tree-packets.png"><img src="images/08-xmas-tree-packets.png"></a>
         <p class="caption">Wireshark sniff showing several xmas tree packets and the TCP header with our bits set</p>
         
         <p>Woohoo! Look how awesome we are! Make sure to look through that script so you can see what we're doing. We want to send random TCP ports in our packet, so we have to make an array of packets, each with a different TCP destination port. You could also randomize the source port or any other field using the technique I did in that script.</p>
