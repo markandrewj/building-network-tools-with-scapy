@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Sending an ICMP Echo Request</title>
+    <title>Sending and Receiving with Scapy</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -33,11 +33,13 @@
       </header>
       <section>
         <h3 id="01">
-          06 - Sending an ICMP Echo Request
+          06 - Sending and Receiving with Scapy
         </h3>
         <p>We've sniffed some packets, dig down into packet layers and fields, and even sent some packets. Great job! It's time to step up our game with Scapy and start really using some of the power Scapy contains. Please Note: this next example is for education and example only. Please be responsible on your network, especially at work!</p>
         <h4>Scapy Send/Receive Function</h4>
         <p>Let's get familiar with the <code>sr()</code> and <code>srp()</code> functions. Just like the <code>send()</code>, function, the 'p' at the end of the function name means that we're sending at L2 instead of L3. I'll reference both functions as <code>sr()</code>, but the examples will use the correct function.</p>
+        
+        <h4>Sending an ICMP Echo Request (ping)</h4>
         <p>The <code>sr()</code> function is used to send a packet or group of packets when you expect a response back. We'll be sending an ICMP Echo Request (ping) since we can expect some sort of a response back from that. First let's use the <code>sniff()</code> function to figure out what an ICMP Echo Request looks like in Scapy:</p>
         <pre><code>>>> p = sniff(count=10,filter="icmp and ip host 4.2.2.1")
 >>> p
@@ -75,7 +77,7 @@ addr_mask  : ConditionalField     = ('0.0.0.0')
 unused     : ConditionalField     = (0)</code></pre>
         <p>Most of those default values are fine, and src addresses will be filled out automatically by Scapy when it sends the packets. We can spoof those if desired, but again, since we're expecting a response we need to leave those alone. Let's start building our ICMP packet:</p>
         <pre><code>>>> pingr
-<Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |<IP  frag=0 proto=icmp src=172.16.20.40 dst=4.2.2.1 |<ICMP  type=echo-request code=0 |<Raw  load='XXXXXXXXXX' |>>>>
+&lt;Ether  dst=00:07:7d:6d:b4:9e src=b8:f6:b1:11:65:35 type=0x800 |&lt;IP  frag=0 proto=icmp src=172.16.20.40 dst=4.2.2.1 |&lt;ICMP  type=echo-request code=0 |&lt;Raw  load='XXXXXXXXXX' |>>>>
 >>></code></pre>
 
 
