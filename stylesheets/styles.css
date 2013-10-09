@@ -75,7 +75,8 @@ h4, h5, h6 {
 	font-weight: 700;
 }
 h4 {
-  color: #2a46b9;
+  color: #386cb9;
+  font-size: 1.2em;
 }
 
 a {
