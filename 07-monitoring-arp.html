@@ -41,11 +41,8 @@
         <p>This will import all Scapy functions, but if you know that you will only need a few of the functions, you can import them individually as well like this:</p>
         <pre><code>from scapy.all import sr1,IP,ICMP</code></pre>
         <p>The biggest different with running Scapy in a script is that the output may not be as verbose as interactive mode. If you're not getting all the output you need, make sure to try using the <code>print</code> command.  Here's an example with our previous ping example:</p>
-        <pre><code>from scapy.all import *
-
-print sr1(IP(dst="4.2.2.1")/ICMP()).summary()
-
-============================Console Output:===========================
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6920022.js"></script>
+        <pre><code>============================Console Output:===========================
 Begin emission:
 ..Finished to send 1 packets.
 .*
@@ -54,11 +51,8 @@ IP / ICMP 4.2.2.1 > 172.16.20.40 echo-reply 0 / Padding</code></pre>
         
         <h4>Using Scapy to monitor ARP traffic</h4>
         <p>Let's pretend that there is concern about someone potentially trying to use an ARP poisoning attack on our network. Using Scapy, we want to write a script that will listen to packets and print out all ARP requests and responses.  We can do that very simply using the Scapy <code>sniff()</code> function and the <code>filter</code> argument like this:</p>
-        <pre><code>from scapy.all import *
-
-print sniff(filter="arp",count=10).summary()
-
-============================Console Output:===========================
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6919986.js"></script>
+        <pre><code>============================Console Output:===========================
 Ether / ARP who has 172.16.20.10 says 172.16.20.40 / Padding
 Ether / ARP who has 172.16.20.92 says 172.16.20.2 / Padding
 Ether / ARP who has 172.16.20.2 says 172.16.20.92 / Padding
