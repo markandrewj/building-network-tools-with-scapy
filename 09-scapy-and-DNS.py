@@ -1,26 +1,23 @@
 from scapy.all import *
 import thread
 
-DNSServerIP = "192.168.205.41"
+DNSServerIP = "172.16.20.40"
 filter = "udp port 53 and ip dst " + DNSServerIP
 
 def DNS_Responder(localIP):
 
 	def forwardDNS(orig_pkt, num):
-		print orig_pkt[DNSQR].qname
-		print orig_pkt.show
-		respPkt = sr1(IP(dst="8.8.8.8")/UDP()/\
-			DNS(rd=1,qd=DNSQR(qname=orig_pkt[DNSQR].qname)))
-		respPkt[0][IP].dst = orig_pkt[IP].src
-		respPkt[0][IP].src = localIP
-		respPkt[0][UDP].dport = orig_pkt[UDP].sport
-		respPkt[0][DNS].id = orig_pkt[DNS].id
-		print respPkt.show
+		print "Forwarding: " + orig_pkt[DNSQR].qname
+		response = sr1(IP(dst="8.8.8.8")/UDP(sport=orig_pkt[UDP].sport)/\
+			DNS(rd=1,id=orig_pkt[DNS].id,qd=DNSQR(qname=orig_pkt[DNSQR].qname)))
+		respPkt = IP(dst=orig_pkt[IP].src)/UDP(dport=orig_pkt[UDP].sport)/DNS()
+		respPkt[DNS] = response[DNS]
+		print "Responding: " + respPkt.summary()
 		send(respPkt)
 
 	def getResponse(pkt):
 
-		if (DNS in pkt and pkt[DNS].opcode == 0L):
+		if (DNS in pkt and pkt[DNS].opcode == 0L and pkt[DNS].ancount == 0 and pkt[IP].src != localIP):
 			if "trailers.apple.com" in pkt['DNS Question Record'].qname:
 				spfResp = IP(\
 					dst=pkt[IP].src)\
@@ -60,7 +57,6 @@ def DNS_Responder(localIP):
 			else:
 				#make DNS query, capturing the answer and send the answer
 				thread.start_new_thread(forwardDNS, (pkt,1))
-				return "Orig Sent"
 
 	return getResponse
 
