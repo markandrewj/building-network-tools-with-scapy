@@ -73,17 +73,8 @@ Ether / ARP who has 172.16.20.19 says 172.16.20.2 / Padding</code></pre>
         
         <h4>Using the prn Argument to Customize sniff() Output</h4>
         <p>I'm going to introduce the <code>prn</code> argument and show you how to do change what Scapy prints out for each packet:</p> 
-        <pre><code>from scapy.all import *
-
-def arp_display(pkt):
-    if pkt[ARP].op == 1: #who-has (request)
-        return "Request: " + pkt[ARP].psrc + " is asking about " + pkt[ARP].pdst
-    if pkt[ARP].op == 2: #is-at   (response)
-        return "*Response: " + pkt[ARP].hwsrc + " has address " + pkt[ARP].psrc
-
-print sniff(prn=arp_display, filter="arp", store=0, count=10)
-
-============================Console Output:===========================
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6919284.js"></script>
+        <pre><code>============================Console Output:===========================
 Request: 172.16.20.168 is asking about 172.16.20.85
 Request: 172.16.20.168 is asking about 172.16.20.229
 Request: 172.16.20.2 is asking about 172.16.20.203

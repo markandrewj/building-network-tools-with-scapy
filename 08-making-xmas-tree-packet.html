@@ -39,26 +39,8 @@
 
         <h4>Taking Control of Protocol Fields</h4>
         <p>I want to show you how to take a bit more control over the packet creation process by creating a <a href="http://en.wikipedia.org/wiki/Christmas_tree_packet">TCP Christmas Tree packet</a>. I'll let you read the details, just know that the name of this packet comes from every TCP header flag bit turned on (set to 1), so it can be said the packet is "lit up like a Christmas Tree." Here's how we can build this with Scapy:</p>
-        <pre><code>from scapy.all import *
-from random import randint
-
-# Create the skeleton of our packet
-template = IP(dst="172.16.20.10")/TCP()
-
-# Start lighting up those bits!
-template[TCP].flags = "UFP"
-
-# Create an array with a large number of packets to send
-# Each packet will have a random TCP dest port for attack obfuscation
-xmas = []
-for pktNum in range(0,100):
-  xmas.extend(template)
-  xmas[pktNum][TCP].dport = randint(1,65535)
-
-# Send the array of packets
-send(xmas)
-
-============================Console Output:===========================
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6919352.js"></script>
+        <pre><code>============================Console Output:===========================
 ....................................................................................................
 Sent 100 packets.
 </code></pre>
