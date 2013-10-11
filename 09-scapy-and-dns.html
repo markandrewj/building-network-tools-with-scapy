@@ -35,7 +35,85 @@
         <h3 id="01">
           09 - Scapy and DNS
         </h3>
-        <p>Coming Soon</p>
+        <p>We've been able to work with Ethernet, ARP, IP, ICMP, and TCP pretty easily so far thanks to Scapy's built in protocol support. Next on our list of protocols to work with are UDP and DNS. </p>
+        <h4>DNS Request and Response</h4>
+        <p>Using the <code>sr1()</code> function, we can craft a DNS request and capture the returned DNS response. Since DNS runs over IP and UDP, we will need to use those in our packet:</p>
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6928674.js"></script>
+        <pre><code>============================Console Output:===========================
+Begin emission:
+..Finished to send 1 packets.
+..*
+Received 5 packets, got 1 answers, remaining 0 packets
+DNS Ans "198.71.55.197"</code></pre>
+        <p class="caption">The DNS layer summary is printed showing the IP address of the hostname requested</p>
+        <p>Without too much work we were able to write a short script to get back some IP addresses.  Just think about what this means; we could read in a list of hostnames to resolve and send the IP addreses off to some function to do some more tests such as ping or TCP scans.</p>
+
+        <h4>DNS Forwarding and Spoofing</h4>
+        <p>Ok, so sending a DNS query was fun, but let's build on that. How about hand building a DNS service that can handle DNS forwarding, but with the added functionality of handing out a custom IP address for a certain domain name. This is similar to how the DNS server part of the <a href="https://github.com/iBaa/PlexConnect">PlexConnect</a> utility works to hijack some communications from the AppleTV. This is going to jump up in complexity quite a bit from our previous example but the process is still pretty simple:</p>
+        <ul>
+          <li>Sniff with Scapy to listen for incoming DNS requests
+          <ul>
+            <li>Filtering for UDP port 53 destined to the server's IP address</li>
+          </ul>
+          </li>
+          <li>If the request is for our special domain name, send a spoofed DNS response
+            <ul>
+              <li>Swap source/dest UDP ports and IP addresses</li>
+              <li>Match DNS request ID</li>
+            </ul>
+          </li>
+          <li>Otherwise, make a new DNS request and send the response back to the requesting host
+            <ul>
+              <li>Make a new request, and save the DNS Response</li>
+              <li>Send a response back to the client matching the same fields as above</li>
+            </ul>
+          </li>
+
+        </ul>
+        <p>We're doing a lot of field replacements, especially on the handcrafted spoof response. All I did to figure out all those fields is capture a DNS response from a request I made and used the <code>show()</code> function to figure out what fields are expected in the DNS response.</p>
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/6926872.js"></script>
+        With this running on a host, I used the DNS <code>dig</code> utility to make some DNS requests:
+        <pre><code>localhost:~ packetgeek$ dig @172.16.20.40 www.thepacketgeek.com
+
+; &lt;&lt;>> DiG 9.8.5-P1 &lt;&lt;>> @172.16.20.40 www.thepacketgeek.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 29980
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;www.thepacketgeek.com.   IN  A
+
+;; ANSWER SECTION:
+www.thepacketgeek.com.  20411 IN  A 198.71.55.197
+
+;; Query time: 90 msec
+;; SERVER: 172.16.20.40#53(172.16.20.40)
+;; WHEN: Thu Oct 10 19:39:38 PDT 2013
+;; MSG SIZE  rcvd: 76
+
+localhost:~ packetgeek$ dig @172.16.20.40 trailers.apple.com
+
+; &lt;&lt;>> DiG 9.8.5-P1 &lt;&lt;>> @172.16.20.40 trailers.apple.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 12688
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: Messages has 34 extra bytes at end
+
+;; QUESTION SECTION:
+;trailers.apple.com.    IN  A
+
+;; ANSWER SECTION:
+trailers.apple.com. 20  IN  A 172.16.20.40
+
+;; Query time: 561 msec
+;; SERVER: 172.16.20.40#53(172.16.20.40)
+;; WHEN: Thu Oct 10 19:39:45 PDT 2013
+;; MSG SIZE  rcvd: 104</code></pre>
+        <p>This example uses a lot of Python, so if you're not familiar with that take some time to look at the code and look up anything you don't know in the <a href="http://docs.python.org/2.7/">Python Docs</a>.</p>
 
         
         
