@@ -35,10 +35,54 @@
         <h3 id="01">
           10 - Emulating nmap Functions
         </h3>
-        <p>Coming Soon</p>
-
+        <p>We've seen a lot of cool applications for scapy in your network tools, but a good inspiration for new tools is to look at existing tools to figure out how they do their job. We will be emulating some nmap &amp; Angry IP Scanner type features and creating the following tools: </p>
+        <ul>
+          <li><a href="#port-scanner">TCP port range scanner</a></li>
+          <li><a href="#ping-sweep">ICMP Ping sweep</a></li>
+          <li><a href="#fingerprinting">Host OS fingerprinting</a></li>
+        </ul>
+        <h4 id="port-scanner">TCP Port Range Scanner</h4>
+        <p>This is a fairly basic tool to test whether a host has specific TCP ports open and listening. We start out by defining our host and ports to scan and then move on to the fun stuff. Using a random TCP source port to help obfuscate the attack (although most firewalls are smarter than this nowadays), we send a TCP SYN packet to each destination TCP port specified. If we get no response or a TCP RST in return, we know that the host is filtering or not listening on that port. If we get an ICMP unreachable or error response, we also know the host is not willing to take requests on that port. But, if we get an expected TCP SYN/ACK response, we will send a RST so the host doesn't keep listening for our ACK since we already know the host is listening on that port. Here's the code:</p>
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/7109130.js"></script>
+        <pre><code>============================Console Output:===========================
+www.facebook.com:22 is filtered (silently dropped).
+www.facebook.com:23 is filtered (silently dropped).
+www.facebook.com:80 is open.
+www.facebook.com:443 is open.
+www.facebook.com:449 is filtered (silently dropped).</code></pre>
+        <p class="caption">For more information on TCP behavior and how this was created, visit: <a href="http://resources.infosecinstitute.com/port-scanning-using-scapy/">Port Scanning Using Scapy</a></p>
+        <p>Regarding the random source port and trying to hide the attack, most modern firewalls will easily detect what we're trying to do and most likely will drop the traffic. This can cause us to think the host is dropping the traffic, when in fact it's just the firewall doing its job. We can further hide the attack by using a random source IP address, which is do able using the <code>netaddr</code> module I introduce in the next section below. I'll eventually have a quick guide on creating random IP addresses, but for now it can be a fun puzzle for you to solve.</p>
+        <h4 id="ping-sweep">ICMP Ping Sweep</h4>
+        <p>For this utility, we will need the <a href="http://pythonhosted.org/netaddr/index.html">netaddr</a> module for iterating through an IP subnet. Read the docs and install the module with these links:</p>
+        <ul>
+          <li><a href="http://pythonhosted.org/netaddr/index.html"></a>netaddr Docs</li>
+          <li><a href="http://pythonhosted.org/netaddr/installation.html">Installing netaddr</a></li>
+        </ul>
+        <p>This script is just an expansion of our ICMP ping utility from the <a href="06-sending-and-receiving.html">Sending and Receiving</a> example. We will use a network given with a CIDR mask to specify the hosts to run the ping scan on. Then, using a Python <code>for</code> loop we iterate through each address and try pinging. If the response times out or returns an ICMP error (such as unreachable or admin deny), we know that the host is not up or is blocking ICMP. Otherwise, if we receive a response we know that host is online.  Check out the code here: </p>
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/7109829.js"></script>
+        <pre><code>============================Console Output:===========================
+172.16.20.1 is responding.
+WARNING: Mac address to reach destination not found. Using broadcast.
+172.16.20.2 is down or not responding.
+WARNING: Mac address to reach destination not found. Using broadcast.
+172.16.20.3 is down or not responding.
+172.16.20.4 is responding.
+172.16.20.5 is responding.
+172.16.20.6 is responding.
+172.16.20.7 is responding.
+WARNING: Mac address to reach destination not found. Using broadcast.
+172.16.20.8 is down or not responding.
+WARNING: Mac address to reach destination not found. Using broadcast.
+172.16.20.9 is down or not responding.
+172.16.20.10 is responding.
+172.16.20.11 is responding.
+... (truncated)</code></pre>
+        <p>In this example, the <code>WARNING: Mac address to reach destination not found. Using broadcast.</code> is telling us that Scapy doesn't know the destination ARP address to send the packet to. This is only showing up because I am running this test on my locally connected network. If I were running this scan on a different network, Scapy would use the gateway MAC address for the L2 destination. </p>
         
+        <p>The subnet iteration part of this script could easily be re-used in any of these other tools, such as using the TCP port scanner on an entire subnet!</p>
         
+        <h4 id="fingerprinting">Host OS Fingerprinting</h4>
+        <p>Scapy has some great built in OS fingerprinting tools, let's take a look at them. (Coming Soon)</p>
         <nav>
           <p class="previous"><a href="09-scapy-and-dns.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="11-scapy-resources.html">Next <i class="icon-arrow-right"></i></a></p>
