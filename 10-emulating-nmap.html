@@ -37,9 +37,9 @@
         </h3>
         <p>We've seen a lot of cool applications for scapy in your network tools, but a good inspiration for new tools is to look at existing tools to figure out how they do their job. We will be emulating some nmap &amp; Angry IP Scanner type features and creating the following tools: </p>
         <ul>
-          <li><a href="#port-scanner">TCP port range scanner</a></li>
-          <li><a href="#ping-sweep">ICMP Ping sweep</a></li>
-          <li><a href="#fingerprinting">Host OS fingerprinting</a></li>
+          <li><a href="#port-scanner">TCP Port Range Scanner</a></li>
+          <li><a href="#ping-sweep">ICMP Ping Sweep</a></li>
+          <li><a href="#sweep-and-scan">Combining the Two</a></li>
         </ul>
         <h4 id="port-scanner">TCP Port Range Scanner</h4>
         <p>This is a fairly basic tool to test whether a host has specific TCP ports open and listening. We start out by defining our host and ports to scan and then move on to the fun stuff. Using a random TCP source port to help obfuscate the attack (although most firewalls are smarter than this nowadays), we send a TCP SYN packet to each destination TCP port specified. If we get no response or a TCP RST in return, we know that the host is filtering or not listening on that port. If we get an ICMP unreachable or error response, we also know the host is not willing to take requests on that port. But, if we get an expected TCP SYN/ACK response, we will send a RST so the host doesn't keep listening for our ACK since we already know the host is listening on that port. Here's the code:</p>
@@ -76,13 +76,59 @@ WARNING: Mac address to reach destination not found. Using broadcast.
 172.16.20.9 is down or not responding.
 172.16.20.10 is responding.
 172.16.20.11 is responding.
-... (truncated)</code></pre>
+... (truncated)
+Out of 254 hosts, 19 are online.</code></pre>
         <p>In this example, the <code>WARNING: Mac address to reach destination not found. Using broadcast.</code> is telling us that Scapy doesn't know the destination ARP address to send the packet to. This is only showing up because I am running this test on my locally connected network. If I were running this scan on a different network, Scapy would use the gateway MAC address for the L2 destination. </p>
+      
         
-        <p>The subnet iteration part of this script could easily be re-used in any of these other tools, such as using the TCP port scanner on an entire subnet!</p>
-        
-        <h4 id="fingerprinting">Host OS Fingerprinting</h4>
-        <p>Scapy has some great built in OS fingerprinting tools, let's take a look at them. (Coming Soon)</p>
+        <h4 id="sweep-and-scan">Combining the Two</h4>
+        <p>Those first two tools are cool, but you know what would be cooler?  Combining them! With a new tool that combines those two features, we can scan a subnet for online hosts and then also run a TCP scan on the online hosts.</p>
+        <p>To get this new tool up and running, we can pretty much use the existing code with just a couple changes. We can get rid of the single <code>host</code> variable since we'll be using the network statment (this can define a single host using the /32 CIDR mask). Also, to keep the code clean and easy to understand we should move our TCP scan to it's own function so we can call that on any hosts that respond to the ICMP ping request. Here's the code and some example output:</p>
+        <script type="text/javascript" src="https://gist.github.com/thepacketgeek/7125485.js"></script>
+        <pre><code>============================Console Output:===========================
+172.16.20.1:22 is filtered (silently dropped).
+172.16.20.1:23 is filtered (silently dropped).
+172.16.20.1:80 is filtered (silently dropped).
+172.16.20.1:443 is filtered (silently dropped).
+172.16.20.1:449 is filtered (silently dropped).
+172.16.20.2:22 is closed.
+172.16.20.2:23 is closed.
+172.16.20.2:80 is open.
+172.16.20.2:443 is closed.
+172.16.20.2:449 is closed.
+172.16.20.3:22 is filtered (silently dropped).
+172.16.20.3:23 is filtered (silently dropped).
+172.16.20.3:80 is filtered (silently dropped).
+172.16.20.3:443 is filtered (silently dropped).
+172.16.20.3:449 is filtered (silently dropped).
+172.16.20.4 is down or not responding.
+172.16.20.5:22 is closed.
+172.16.20.5:23 is closed.
+172.16.20.5:80 is open.
+172.16.20.5:443 is open.
+172.16.20.5:449 is closed.
+172.16.20.6:22 is closed.
+172.16.20.6:23 is closed.
+172.16.20.6:80 is open.
+172.16.20.6:443 is closed.
+172.16.20.6:449 is closed.
+Out of 8 hosts, 5 are online.</code></pre>
+
+        <p>That output is a little noisy for my taste, so if we remove some of the print statements like in this example <a title="10-scan-and-sweep-2.py" target="_blank" href="https://gist.github.com/thepacketgeek/7125755">here</a>, we get the following output:</p>
+        <pre><code>============================Console Output:===========================
+172.16.20.1 is responding.
+172.16.20.2 is responding.
+172.16.20.2:80 is open.
+172.16.20.3 is responding.
+172.16.20.5 is responding.
+172.16.20.5:80 is open.
+172.16.20.5:443 is open.
+172.16.20.6 is responding.
+172.16.20.6:80 is open.
+Out of 8 hosts, 5 are online.</code></pre>
+
+        <p>This is just the basics for building tools like this. The formatting can be customized to print out how you want and you can scan more ports if needed. Use these as starting points to build The Ultimate Network Tool and let me know what you create! </p>
+
         <nav>
           <p class="previous"><a href="09-scapy-and-dns.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="11-scapy-resources.html">Next <i class="icon-arrow-right"></i></a></p>
