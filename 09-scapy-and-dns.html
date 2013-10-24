@@ -49,7 +49,7 @@ DNS Ans "198.71.55.197"</code></pre>
         <p>Without too much work we were able to write a short script to get back some IP addresses.  Just think about what this means; we could read in a list of hostnames to resolve and send the IP addreses off to some function to do some more tests such as ping or TCP scans.</p>
 
         <h4>DNS Forwarding and Spoofing</h4>
-        <p>Ok, so sending a DNS query was fun, but let's build on that. How about hand building a DNS service that can handle DNS forwarding, but with the added functionality of handing out a custom IP address for a certain domain name. This is similar to how the DNS server part of the <a href="https://github.com/iBaa/PlexConnect">PlexConnect</a> utility works to hijack some communications from the AppleTV. This is going to jump up in complexity quite a bit from our previous example but the process is still pretty simple:</p>
+        <p>Ok, so sending a DNS query was fun, but let's build on that. How about hand building a DNS service that can handle DNS forwarding, but with the added functionality of handing out a custom IP address for a certain domain name. This is similar to how the DNS server part of the <a target = "_blank" href="https://github.com/iBaa/PlexConnect">PlexConnect</a> utility works to hijack some communications from the AppleTV. This is going to jump up in complexity quite a bit from our previous example but the process is still pretty simple:</p>
         <ul>
           <li>Sniff with Scapy to listen for incoming DNS requests
           <ul>
@@ -113,7 +113,7 @@ trailers.apple.com. 20  IN  A 172.16.20.40
 ;; SERVER: 172.16.20.40#53(172.16.20.40)
 ;; WHEN: Thu Oct 10 19:39:45 PDT 2013
 ;; MSG SIZE  rcvd: 104</code></pre>
-        <p>This example uses a lot of Python, so if you're not familiar with that take some time to look at the code and look up anything you don't know in the <a href="http://docs.python.org/2.7/">Python Docs</a>.</p>
+        <p>This example uses a lot of Python, so if you're not familiar with that take some time to look at the code and look up anything you don't know in the <a target = "_blank" href="http://docs.python.org/2.7/">Python Docs</a>.</p>
 
         
         

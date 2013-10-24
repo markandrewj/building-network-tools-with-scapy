@@ -50,13 +50,13 @@ www.facebook.com:23 is filtered (silently dropped).
 www.facebook.com:80 is open.
 www.facebook.com:443 is open.
 www.facebook.com:449 is filtered (silently dropped).</code></pre>
-        <p class="caption">For more information on TCP behavior and how this was created, visit: <a href="http://resources.infosecinstitute.com/port-scanning-using-scapy/">Port Scanning Using Scapy</a></p>
+        <p class="caption">For more information on TCP behavior and how this was created, visit: <a target = "_blank" href="http://resources.infosecinstitute.com/port-scanning-using-scapy/">Port Scanning Using Scapy</a></p>
         
         <h4 id="ping-sweep">ICMP Ping Sweep</h4>
-        <p>For this utility, we will need the <a href="http://pythonhosted.org/netaddr/index.html">netaddr</a> module for iterating through an IP subnet. Read the docs and install the module with these links:</p>
+        <p>For this utility, we will need the <a target = "_blank" href="http://pythonhosted.org/netaddr/index.html">netaddr</a> module for iterating through an IP subnet. Read the docs and install the module with these links:</p>
         <ul>
-          <li><a href="http://pythonhosted.org/netaddr/index.html"></a>netaddr Docs</li>
-          <li><a href="http://pythonhosted.org/netaddr/installation.html">Installing netaddr</a></li>
+          <li><a target = "_blank" href="http://pythonhosted.org/netaddr/index.html"></a>netaddr Docs</li>
+          <li><a target = "_blank" href="http://pythonhosted.org/netaddr/installation.html">Installing netaddr</a></li>
         </ul>
         <p>This script is just an expansion of our ICMP ping utility from the <a href="06-sending-and-receiving.html">Sending and Receiving</a> example. We will use a network given with a CIDR mask to specify the hosts to run the ping scan on. Then, using a Python <code>for</code> loop we iterate through each address and try pinging. If the response times out or returns an ICMP error (such as unreachable or admin deny), we know that the host is not up or is blocking ICMP. Otherwise, if we receive a response we know that host is online.  Check out the code here: </p>
         <script type="text/javascript" src="https://gist.github.com/thepacketgeek/7109829.js"></script>
