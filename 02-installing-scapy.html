@@ -73,6 +73,11 @@ iface      = 'en0'
         <p>If you are constantly switching back and forth between interfaces, you can specify the interface to use when you run scapy commands. Here are some Scapy functions and how you might use the <code>iface</code> argument. You'll learn more about these functions and other arguments soon.</p>
         <pre><code>>>> sniff(count=10,iface=en3)
 >>> send(pkt,iface=en3)</code></pre>
+        
+        <h4>Root Permissions</h4> 
+        <p>For some of the Scapy functions dealing with sending traffic, you will need to be able to run Scapy as root. For example, on a Mac/Linux computer you can run interactive mode with root permissions by running <code>sudo scapy</code> from the CLI.  Also, you can run the Python scripts with Scapy send functions as sudo like this: </p>
+        <pre><code>$ sudo python script.py</code></pre>
+        <p>If you ever receive a Python error about not having the correct permissions or something not be allowed, try running Scapy with root permissions.</p>
         <nav>
           <p class="previous"><a href="01-scapy-overview.html"><i class="icon-arrow-left"></i> Previous</a></p>
           <p class="next"><a href="03-scapy-interactive-mode.html">Next <i class="icon-arrow-right"></i></a></p>
