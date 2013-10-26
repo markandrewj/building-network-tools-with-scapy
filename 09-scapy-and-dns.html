@@ -46,7 +46,7 @@ Begin emission:
 Received 5 packets, got 1 answers, remaining 0 packets
 DNS Ans "198.71.55.197"</code></pre>
         <p class="caption">The DNS layer summary is printed showing the IP address of the hostname requested</p>
-        <p>Without too much work we were able to write a short script to get back some IP addresses.  Just think about what this means; we could read in a list of hostnames to resolve and send the IP addreses off to some function to do some more tests such as ping or TCP scans.</p>
+        <p>Without too much work we were able to write a short script to query some DNS name to IP address resolutions.  Just think about what this means; we could read in a list of hostnames to resolve and send the IP addresses off to some function to do some more tests such as ping or TCP scans.</p>
 
         <h4>DNS Forwarding and Spoofing</h4>
         <p>Ok, so sending a DNS query was fun, but let's build on that. How about hand building a DNS service that can handle DNS forwarding, but with the added functionality of handing out a custom IP address for a certain domain name. This is similar to how the DNS server part of the <a target = "_blank" href="https://github.com/iBaa/PlexConnect">PlexConnect</a> utility works to hijack some communications from the AppleTV. This is going to jump up in complexity quite a bit from our previous example but the process is still pretty simple:</p>
