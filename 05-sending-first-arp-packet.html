@@ -49,7 +49,7 @@
         
         <p>These should all be self-explanatory except for the <code>filter</code> and <code>prn</code> arguments. The <code>filter</code> argument takes <a href="http://biot.com/capstats/bpf.html" target="_blank">BPF syntax filters</a>, just like Wireshark or tcpdump capture filters. The <code>prn</code> argument is a very cool capability of the <code>sniff()</code> function and you can read more about it here: <a href="http://thepacketgeek.com/scapy-sniffing-with-custom-actions-part-1/" target="_blank">Scapy and custom actions.</a></p>
 
-        <p>Since we want to generate our first ARP packet we should go ahead and sniff one to see what it looks like. Here's a sniff using the <code>count</code> and <code>filter</code> arguments:
+        <p>Since we want to generate our first ARP packet we should go ahead and sniff one to see what it takes to recreate one using the <code>.show()</code> and <code>.command()</code> method. Here's a sniff using the <code>count</code> and <code>filter</code> arguments:
         <pre><code>>>> pkts = sniff(count=5,filter="arp")
 >>> pkts.summary()
 Ether / ARP who has 172.16.20.255 says 172.16.20.40 / Padding
@@ -60,7 +60,7 @@ Ether / ARP who has 172.16.20.80 says 172.16.20.74 / Padding
 >>> pkts[0].show()
 ###[ Ethernet ]###
   dst= ff:ff:ff:ff:ff:ff
-  src= 00:11:22:94:52:e8
+  src= 00:11:22:aa:bb:cc
   type= 0x806
 ###[ ARP ]###
      hwtype= 0x1
@@ -68,11 +68,13 @@ Ether / ARP who has 172.16.20.80 says 172.16.20.74 / Padding
      hwlen= 6
      plen= 4
      op= who-has
-     hwsrc= 00:11:22:94:52:e8
+     hwsrc= 00:11:22:aa:bb:cc
      psrc= 172.16.20.40
      hwdst= 00:00:00:00:00:00
      pdst= 172.16.20.255
-###[ Padding ]###</code></pre>
+###[ Padding ]###
+>>> pkts[0].command()
+"Ether(src='00:11:22:aa:bb:cc', dst='ff:ff:ff:ff:ff:ff', type=2054)/ARP(hwdst='00:00:00:00:00:00', ptype=2048, hwtype=1, psrc='172.16.20.40', hwlen=6, plen=4, pdst='172.16.20.255', hwsrc='00:11:22:aa:bb:cc', op=2)"</code></pre>
         <h4>Building a Packet</h4>
         <p>It looks like ARP packets only have 2 layers plus padding that we have to worry about. We can use the <code>ls()</code> function on the Ether and ARP layers to see what options are available to us:</p>
         <pre><code>>>> ls(Ether)
@@ -89,19 +91,30 @@ hwsrc      : ARPSourceMACField    = (None)
 psrc       : SourceIPField        = (None)
 hwdst      : MACField             = ('00:00:00:00:00:00')
 pdst       : IPField              = ('0.0.0.0')</code></pre>
+
         <p>Let's create our ARP packet and start assigning some values:</p>
         <pre><code>>>> arppkt = Ether()/ARP()
 >>> arppkt
 &lt;Ether  type=0x806 |&lt;ARP  |>>
+=======
+        <p>Let's create our ARP packet and start assigning some values. We can copy/paste the string returned from the <code>.command()</code> method to initiate our packet:</p>
+        <pre><code>>> arppkt = Ether(src='00:11:22:aa:bb:cc', dst='ff:ff:ff:ff:ff:ff', type=2054)/ARP(hwdst='00:00:00:00:00:00', ptype=2048, hwtype=1, psrc='172.16.20.40', hwlen=6, plen=4, pdst='172.16.20.255', hwsrc='00:11:22:aa:bb:cc', op=2)
+>>>>>>> 89aa3f4fbe225c2631dbca2dc8eecccccadbae31
 >>> arppkt[ARP].hwsrc = "00:11:22:aa:bb:cc"
 >>> arppkt[ARP].pdst = "172.16.20.1"
 >>> arppkt[Ether].dst = "ff:ff:ff:ff:ff:ff"
 >>> arppkt
+
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
         <p>We start by defining the layers we want with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define all the options in one statement by passing in the fields as arguments to the related layer:</p>
         <pre><code>>>> arppkt = Ether(dst="ff:ff:ff:ff:ff:ff",src="00:11:22:aa:bb:cc")/ARP(hwsrc="00:11:22:aa:bb:cc",pdst="172.16.20.1")
 >>> arppkt
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
+=======
+&lt;Ether  dst=ff:ff:ff:ff:ff:ff src=00:11:22:aa:bb:cc type=0x806 |&lt;ARP  hwtype=0x1 ptype=0x800 hwlen=6 plen=4 op=is-at hwsrc=00:11:22:aa:bb:cc psrc=172.16.20.40 hwdst=00:00:00:00:00:00 pdst=172.16.20.1 |>></code></pre>
+        <p>The layers we want are defined with the with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define the packet from scratch with all the options in one statement by passing in the fields as arguments to the related layer.</p>
+        
+
         <p>Note that the special glue holding these packets together is the <code>/</code> operator. If you happen to forget a layer when you're first defining the packet, you can add on a layer very easily using the existing packet and the <code>/</code> operator like this:</p>
         <pre><code>>>> tcppkt
 &lt;Ether  type=0x800 |&lt;IP  |>>

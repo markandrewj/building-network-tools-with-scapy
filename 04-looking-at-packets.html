@@ -66,11 +66,11 @@
         id= 0x9057
         seq= 0x0
 ###[ Raw ]###</code></pre>
-        <p>Very cool, that's some good info. If you're familiar with Python you have probably noticed the array index, <code>[0]</code>, after the <code>pkt</code> variable name. Remember that our sniff only returned a single packet, but if we increase the <code>count</code> argument value, we will get back an array with multiple packets:</p>
+        <p>Very cool, that's some good info. If you're familiar with Python you have probably noticed the list index, <code>[0]</code>, after the <code>pkt</code> variable name. Remember that our sniff only returned a single packet, but if we increase the <code>count</code> argument value, we will get back an list with multiple packets:</p>
         <pre><code>>>> pkts = sniff(count=10)
 >>> pkts
 &lt;Sniffed: TCP:0 UDP:0 ICMP:10 Other:0&gt;</code></pre>
-        <p class="caption">Getting the value of the array returns a quick glance at what type of packets were sniffed.</p>
+        <p class="caption">Getting the value of the list returns a quick glance at what type of packets were sniffed.</p>
 <pre><code>>>> pkts.summary()
 Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
@@ -82,7 +82,7 @@ Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw
 Ether / IP / ICMP 172.16.20.10 > 4.2.2.1 echo-request 0 / Raw
 Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
-        <p>And we can show the summary or packet contents of any single packet by using the array index with that packet value. So, let's look at the contents of the 4th packet (Remember, array indexes start counting at 0):</p>
+        <p>And we can show the summary or packet contents of any single packet by using the list index with that packet value. So, let's look at the contents of the 4th packet (Remember, list indexes start counting at 0):</p>
         <pre><code>>>> pkts[3]
 &lt;Ether  dst=00:24:97:2e:d6:c0 src=00:24:97:2e:d6:c0 type=0x800 |&lt;IP  version=4L ihl=5L tos=0x20 len=84 id=47340 flags= frag=0L ttl=57 proto=icmp chksum=0x3826 src=4.2.2.1 dst=172.16.20.10 options=[] |&lt;ICMP  type=echo-reply code=0 chksum=0xcfbf id=0x3060 seq=0x1 |&lt;Raw |>>>></code></pre>
         <p class="caption">Getting the value of a single packet returns a quick glance of the contents of that packet. </p>
@@ -117,19 +117,19 @@ Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
         <h4>Digging into Packets by Layer</h4>
         <p>Scapy builds and dissects packets by the layers contained in each packet, and then by the fields in each layer. Each layer is nested inside the parent layer as can be seen with the nesting of the &lt; and &gt; brackets: </p>
         <pre><code>>>> pkts[4]
-&lt;Ether  dst=00:24:97:2e:d6:c0 src=00:00:16:aa:bb:cc type=0x800 |&lt;IP  version=4L ihl=5L tos=0x0 len=84 id=17811 flags= frag=0L ttl=64 proto=icmp chksum=0x0 src=192.168.201.203 dst=4.2.2.1 options=[] |&lt;ICMP  type=echo-request code=0 chksum=0xc378 id=0x3060 seq=0x2 |&lt;Raw |&gt;&gt;&gt;&gt;</code></pre>
-        <p>You can also dig into a specific layer using an array index. If we wanted to get to the <code>ICMP</code> layer of <code>pkts[3]</code>, we could do that using the layer name or index number: </p>
+&lt;Ether  dst=00:24:97:2e:d6:c0 src=00:00:16:aa:bb:cc type=0x800 |&lt;IP  version=4L ihl=5L tos=0x0 len=84 id=17811 flags= frag=0L ttl=64 proto=icmp chksum=0x0 src=172.16.20.10 dst=4.2.2.1 options=[] |&lt;ICMP  type=echo-request code=0 chksum=0xc378 id=0x3060 seq=0x2 |&lt;Raw |&gt;&gt;&gt;&gt;</code></pre>
+        <p>You can also dig into a specific layer using an list index. If we wanted to get to the <code>ICMP</code> layer of <code>pkts[3]</code>, we could do that using the layer name or index number: </p>
         <pre><code>>>> pkts[3][ICMP].summary()
-'ICMP 4.2.2.1 > 192.168.201.203 echo-reply 0 / Raw'
+'ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw'
 >>> pkts[3][2].summary()
-'ICMP 4.2.2.1 > 192.168.201.203 echo-reply 0 / Raw'</code></pre>
-        <p>Since the first index chooses the packet out of the <code>pkts</code> array, the second index chooses the layer for that specific packet. Looking at the summary of this packet from an earlier example, we know that the <code>ICMP</code> layer is the 3rd layer.
+'ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw'</code></pre>
+        <p>Since the first index chooses the packet out of the <code>pkts</code> list, the second index chooses the layer for that specific packet. Looking at the summary of this packet from an earlier example, we know that the <code>ICMP</code> layer is the 3rd layer.
 
         <h4>Digging into Layers by Field</h4>
         <p>Within each layer, Scapy parses out the value of each field if it has support for the layer's protocol. Depending on the type of field, Scapy may replace the value with a more friendly text value for the summary views, but not in the values returned for an individual field. Here are some examples:</p>
         <pre><code>>>> pkts[3]
 &lt;Ether  dst=00:00:16:aa:bb:cc src=00:24:97:2e:d6:c0 type=0x800 |\
-&lt;IP  version=4L ihl=5L tos=0x20 len=84 id=47340 flags= frag=0L ttl=57 proto=icmp chksum=0x3826 src=4.2.2.1 dst=192.168.201.203 options=[] |\
+&lt;IP  version=4L ihl=5L tos=0x20 len=84 id=47340 flags= frag=0L ttl=57 proto=icmp chksum=0x3826 src=4.2.2.1 dst=172.16.20.10 options=[] |\
 &lt;ICMP  type=echo-reply code=0 chksum=0xcfbf id=0x3060 seq=0x1 |&lt;Raw |>>>>
 >>> pkts[3][Ether].src
 '00:24:97:2e:d6:c0'
@@ -139,6 +139,12 @@ Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
 1
 >>> pkts[3][ICMP].type
 0</code></pre>
+
+        <h4>Packet .command() Method</h4>
+        <p>If you're wanting to see exactly how to re-create a packet that's been sniffed or received, Scapy has a packet method for you! Using the <code>.command()</code> packet method will return a string of the command necessary to recreate that packet, like this:</p>
+        <pre><code>>>> pkts[2].command()
+'Ether(src=\'00:11:22:aa:bb:cc\', dst=\'c0:c1:c0:b7:ce:63\', type=2048)/IP(frag=0L, src=\'172.16.20.10\', proto=1, tos=0, dst=\'4.2.2.1\', chksum=51457, len=84, options=[], version=4L, flags=0L, ihl=5L, ttl=64, id=59755)/ICMP(gw=None, code=0, ts_ori=None, addr_mask=None, seq=3, ptr=None, unused=None, ts_rx=None, chksum=50424, reserved=None, ts_tx=None, type=8, id=59999)/Raw(load=\'Rk\\xe8\\x02\\x00\\x0c#\\\'\\x08\\t\\n\\x0b\\x0c\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f !"#$%&amp;\\\'()*+,-./01234567\')'</code></pre>
+        <p>I have not yet found a way to programmatically create a new packet variable with this method, but for packet testing you can at least see what fields exist in a packet. </p>
 
         <h4>Using Python control statements with Scapy</h4>
         <p>The awesome thing about Scapy being a module of Python is that we can use the power of Python to do stuff with our packets. Here's a tip of the iceberg example using a Python <code>for</code> statement along with some new Scapy packet methods:
