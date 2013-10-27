@@ -81,7 +81,7 @@ Request: 172.16.20.200 is asking about 172.16.20.44
 *Response: dd:ee:ff:a2:02:bf has address 172.16.20.44</code></pre>
         <p>Basically, what the <code>prn</code> argument lets us do is replace the default Scapy printout of the packet summary and run our own function to determine how Scapy prints out. That's really cool! It works by passing the packet object to the defined function, in this case <code>arp_display()</code>, each time a packet is sniffed that matches the specified filter.</p>
 
-        <p>We can do a lot more with that <code>prn</code> argument and passing more than just the packet object to the custom defined function using nested functions. That's outside the scope of this guide but feel free to read about it here: <a href="http://thepacketgeek.com/scapy-sniffing-with-custom-actions-part-2/" title="Scapy Sniffing with Custom Actions">Scapy Sniffing with Custom Actions</a></p>
+        <p>We can do a lot more with that <code>prn</code> argument and passing more than just the packet object to the custom defined function using nested functions. That's outside the scope of this guide but feel free to read about it here: <a target="_blank" href="http://thepacketgeek.com/series/scapy-sniffing-with-custom-actions/" title="Scapy Sniffing with Custom Actions">Scapy Sniffing with Custom Actions</a></p>
 
 
         
