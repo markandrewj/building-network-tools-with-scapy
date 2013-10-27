@@ -90,7 +90,8 @@ psrc       : SourceIPField        = (None)
 hwdst      : MACField             = ('00:00:00:00:00:00')
 pdst       : IPField              = ('0.0.0.0')</code></pre>
         <p>Let's create our ARP packet and start assigning some values:</p>
-        <pre><code>>>> arppkt
+        <pre><code>>>> arppkt = Ether()/ARP()
+>>> arppkt
 &lt;Ether  type=0x806 |&lt;ARP  |>>
 >>> arppkt[ARP].hwsrc = "00:11:22:aa:bb:cc"
 >>> arppkt[ARP].pdst = "172.16.20.1"
@@ -98,7 +99,8 @@ pdst       : IPField              = ('0.0.0.0')</code></pre>
 >>> arppkt
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
         <p>We start by defining the layers we want with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define all the options in one statement by passing in the fields as arguments to the related layer:</p>
-        <pre><code>>>> arppkt
+        <pre><code>>>> arppkt = Ether(dst="ff:ff:ff:ff:ff:ff",src="00:11:22:aa:bb:cc")/ARP(hwsrc="00:11:22:aa:bb:cc",pdst="172.16.20.1")
+>>> arppkt
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
         <p>Note that the special glue holding these packets together is the <code>/</code> operator. If you happen to forget a layer when you're first defining the packet, you can add on a layer very easily using the existing packet and the <code>/</code> operator like this:</p>
         <pre><code>>>> tcppkt
