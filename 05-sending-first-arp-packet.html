@@ -95,23 +95,21 @@ pdst       : IPField              = ('0.0.0.0')</code></pre>
         <p>Let's create our ARP packet and start assigning some values:</p>
         <pre><code>>>> arppkt = Ether()/ARP()
 >>> arppkt
-&lt;Ether  type=0x806 |&lt;ARP  |>>
-=======
+&lt;Ether  type=0x806 |&lt;ARP  |>></code></pre>
         <p>Let's create our ARP packet and start assigning some values. We can copy/paste the string returned from the <code>.command()</code> method to initiate our packet:</p>
-        <pre><code>>> arppkt = Ether(src='00:11:22:aa:bb:cc', dst='ff:ff:ff:ff:ff:ff', type=2054)/ARP(hwdst='00:00:00:00:00:00', ptype=2048, hwtype=1, psrc='172.16.20.40', hwlen=6, plen=4, pdst='172.16.20.255', hwsrc='00:11:22:aa:bb:cc', op=2)
+        <pre><code>>>> arppkt = Ether(src='00:11:22:aa:bb:cc', dst='ff:ff:ff:ff:ff:ff', type=2054)/ARP(hwdst='00:00:00:00:00:00', ptype=2048, hwtype=1, psrc='172.16.20.40', hwlen=6, plen=4, pdst='172.16.20.255', hwsrc='00:11:22:aa:bb:cc', op=2)
 >>>>>>> 89aa3f4fbe225c2631dbca2dc8eecccccadbae31
 >>> arppkt[ARP].hwsrc = "00:11:22:aa:bb:cc"
 >>> arppkt[ARP].pdst = "172.16.20.1"
 >>> arppkt[Ether].dst = "ff:ff:ff:ff:ff:ff"
->>> arppkt
+>>> arppkt</code></pre>
 
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
         <p>We start by defining the layers we want with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define all the options in one statement by passing in the fields as arguments to the related layer:</p>
         <pre><code>>>> arppkt = Ether(dst="ff:ff:ff:ff:ff:ff",src="00:11:22:aa:bb:cc")/ARP(hwsrc="00:11:22:aa:bb:cc",pdst="172.16.20.1")
 >>> arppkt
 &lt;Ether  dst=ff:ff:ff:ff:ff:ff type=0x806 |&lt;ARP  hwsrc=00:11:22:aa:bb:cc pdst=172.16.20.1 |>></code></pre>
-=======
-&lt;Ether  dst=ff:ff:ff:ff:ff:ff src=00:11:22:aa:bb:cc type=0x806 |&lt;ARP  hwtype=0x1 ptype=0x800 hwlen=6 plen=4 op=is-at hwsrc=00:11:22:aa:bb:cc psrc=172.16.20.40 hwdst=00:00:00:00:00:00 pdst=172.16.20.1 |>></code></pre>
+
         <p>The layers we want are defined with the with the <code>Layer()</code> notation. This will work for any layer in the <code>ls()</code> command output. That's a lot of options! You can also define the packet from scratch with all the options in one statement by passing in the fields as arguments to the related layer.</p>
         
 
