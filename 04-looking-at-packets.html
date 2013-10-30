@@ -144,7 +144,10 @@ Ether / IP / ICMP 4.2.2.1 > 172.16.20.10 echo-reply 0 / Raw</code></pre>
         <p>If you're wanting to see exactly how to re-create a packet that's been sniffed or received, Scapy has a packet method for you! Using the <code>.command()</code> packet method will return a string of the command necessary to recreate that packet, like this:</p>
         <pre><code>>>> pkts[2].command()
 'Ether(src=\'00:11:22:aa:bb:cc\', dst=\'c0:c1:c0:b7:ce:63\', type=2048)/IP(frag=0L, src=\'172.16.20.10\', proto=1, tos=0, dst=\'4.2.2.1\', chksum=51457, len=84, options=[], version=4L, flags=0L, ihl=5L, ttl=64, id=59755)/ICMP(gw=None, code=0, ts_ori=None, addr_mask=None, seq=3, ptr=None, unused=None, ts_rx=None, chksum=50424, reserved=None, ts_tx=None, type=8, id=59999)/Raw(load=\'Rk\\xe8\\x02\\x00\\x0c#\\\'\\x08\\t\\n\\x0b\\x0c\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f !"#$%&amp;\\\'()*+,-./01234567\')'</code></pre>
-        <p>I have not yet found a way to programmatically create a new packet variable with this method, but for packet testing you can at least see what fields exist in a packet. </p>
+        <p>You can assign the output of the <code>.command()</code> method to a new packet using Python's <code>eval()</code> function, although the same results here could also be achieved by directly assigning the packet value to a new variable. These next two statements essentially do the same thing:</p>
+<pre><code>&gt;&gt;&gt;newpkt = eval(pkts[2].command())
+OR
+&gt;&gt;&gt;newpkt = pkts[2]</code></pre>
 
         <h4>Using Python control statements with Scapy</h4>
         <p>The awesome thing about Scapy being a module of Python is that we can use the power of Python to do stuff with our packets. Here's a tip of the iceberg example using a Python <code>for</code> statement along with some new Scapy packet methods:
